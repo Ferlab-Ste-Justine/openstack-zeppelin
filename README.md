@@ -76,7 +76,7 @@ module "certificates" {
 ...
 
 module "zeppelin" {
-  source = "../zeppelin"
+  source = "git::https://github.com/Ferlab-Ste-Justine/openstack-zeppelin.git"
   namespace = var.namespace
   image_id = var.image_id
   flavor_id = var.flavors.small.id
