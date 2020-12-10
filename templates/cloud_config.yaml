@@ -35,17 +35,73 @@ write_files:
 %{ for ip in nameserver_ips ~}
       nameserver ${ip}
 %{ endfor ~}
-  #Zeppeling configuration
+  #Zeppelin configuration
+  - path: /root/.aws/credentials
+    owner: root:root
+    permissions: "0400"
+    content: |
+      [default]
+      aws_access_key_id = ${s3_access}
+      aws_secret_access_key = ${s3_secret}
   - path: /opt/zeppelin-env.sh
     owner: root:root
     permissions: "0444"
     content: |
       export ZEPPELIN_ADDR=0.0.0.0
       export SPARK_HOME=/opt/spark
+  - path: /opt/zeppelin-site.xml
+    owner: root:root
+    permissions: "0400"
+    content: |
+      <?xml version="1.0"?>
+      <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+      <configuration>
+        <property>
+          <name>zeppelin.notebook.s3.user</name>
+          <value>zeppelin</value>
+          <description>user name for s3 folder structure</description>
+        </property>
+
+        <property>
+          <name>zeppelin.notebook.s3.bucket</name>
+          <value>${notebook_s3_bucket}</value>
+          <description>bucket name for notebook storage</description>
+        </property>
+
+        <property>
+          <name>zeppelin.notebook.s3.endpoint</name>
+          <value>http://127.0.0.1</value>
+          <description>endpoint for s3 bucket</description>
+        </property>
+
+        <property>
+          <name>zeppelin.notebook.s3.timeout</name>
+          <value>120000</value>
+          <description>s3 bucket endpoint request timeout in msec.</description>
+        </property>
+
+        <property>
+          <name>zeppelin.notebook.s3.signerOverride</name>
+          <value>S3SignerType</value>
+          <description>optional override to control which signature algorithm should be used to sign AWS requests</description>
+        </property>
+
+        <property>
+          <name>zeppelin.notebook.s3.pathStyleAccess</name>
+          <value>true</value>
+          <description>Path style access for S3 bucket</description>
+        </property>	
+
+        <property>
+          <name>zeppelin.notebook.storage</name>
+          <value>org.apache.zeppelin.notebook.repo.S3NotebookRepo</value>
+          <description>notebook persistence layer implementation</description>
+        </property>
+      </configuration>
   #Spark configuration
   - path: /opt/spark-defaults.conf
     owner: root:root
-    permissions: "0444"
+    permissions: "0400"
     content: |
       spark.master 	                                k8s://${k8_api_endpoint}
       spark.kubernetes.container.image 	            ${k8_executor_image}
@@ -58,10 +114,10 @@ write_files:
       spark.hadoop.fs.s3a.fast.upload               true
       spark.hadoop.fs.s3a.connection.ssl.enabled    false
       spark.hadoop.fs.s3a.path.style.access         true
-      spark.sql.warehouse.dir                       s3a://spark/wharehouse
+      spark.sql.warehouse.dir                       s3a://${spark_sql_warehouse_dir}
       spark.hadoop.fs.s3a.access.key                ${s3_access}
       spark.hadoop.fs.s3a.secret.key                ${s3_secret}
-      spark.hadoop.fs.s3a.endpoint                  ${s3_endpoint}
+      spark.hadoop.fs.s3a.endpoint                  https://${s3_url}
       spark.hadoop.hive.metastore.uris              thrift://${hive_metastore_url}
       spark.sql.catalogImplementation               hive
       spark.sql.extensions                          io.delta.sql.DeltaSparkSessionExtension
@@ -82,6 +138,12 @@ write_files:
     permissions: "0400"
     content: |
       ${indent(6, k8_client_private_key)}
+  #Zeppelin proxy configuration
+  - path: /opt/haproxy/haproxy.cfg
+    owner: root:root
+    permissions: "0444"
+    content: |
+      ${indent(6, haproxy_config)}
   #Zeppelin systemd configuration
   - path: /etc/systemd/system/zeppelin.service
     owner: root:root
@@ -101,8 +163,15 @@ write_files:
       WantedBy=multi-user.target
 packages:
   - curl
+  #DNS Dependency
   - resolvconf
+  #Zeppelin/Spark Dependency
   - openjdk-8-jre
+  #Dockerized HAProxy Dependencies
+  - apt-transport-https
+  - ca-certificates
+  - gnupg-agent
+  - software-properties-common
 runcmd:
   #Add DNS Servers
   - systemctl start resolvconf.service
@@ -116,6 +185,13 @@ runcmd:
   - mv spark-3.0.1-bin-hadoop3.2 spark
   - rm spark-3.0.1-bin-hadoop3.2.tgz
   - cp /opt/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
+  #Install and run zeppelin proxy as a background docker container
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+  - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io
+  - systemctl enable docker
+  - docker run -d --restart=always --name=zeppelin_proxy --network=host -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt -v /opt/haproxy:/usr/local/etc/haproxy:ro haproxy:2.2
   #Install Zeppelin
   - cd /opt
   - wget ${zeppelin_mirror}/apache/zeppelin/zeppelin-0.9.0-preview2/zeppelin-0.9.0-preview2-bin-netinst.tgz
@@ -123,5 +199,6 @@ runcmd:
   - mv zeppelin-0.9.0-preview2-bin-netinst zeppelin
   - rm zeppelin-0.9.0-preview2-bin-netinst.tgz
   - cp /opt/zeppelin-env.sh /opt/zeppelin/conf/zeppelin-env.sh
+  - cp /opt/zeppelin-site.xml /opt/zeppelin/conf/zeppelin-site.xml
   - systemctl enable zeppelin
   - systemctl start zeppelin

@@ -7,6 +7,7 @@ The zeppelin server provisioned has the following characteristics:
 - It uses s3
 - It uses an hive metastore
 - It uses spark 3 in scala
+- It saves its notebooks in s3
 
 # Motivation
 
@@ -50,9 +51,13 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - s3_secret: S3 access key that zeppelin will use to authentify itself to the S3 provider.
 
-- s3_endpoint: The api endpoint of the S3 provider that zeppelin will use.
+- s3_url: url of the S3 provider that zeppelin will use.
 
 - hive_metastore_url: Url of the hive metastore that zeppelin will use.
+
+- spark_sql_warehouse_dir: S3 path of the spark sql warehouse
+
+- notebook_s3_bucket: S3 bucket under which zeppelin will store its notebooks
 
 # Output Variables
 
@@ -92,8 +97,10 @@ module "zeppelin" {
   k8_client_private_key = tls_private_key.client.private_key_pem
   s3_access = openstack_identity_ec2_credential_v3.s3_key.access
   s3_secret = openstack_identity_ec2_credential_v3.s3_key.secret
-  s3_endpoint = "https://mys3server"
+  s3_url = "mys3server"
   hive_metastore_url = "myhivemetastore:9083"
+  spark_sql_warehouse_dir = spark/mywharehouse
+  notebook_s3_bucket = notebooks
 }
 ```
 

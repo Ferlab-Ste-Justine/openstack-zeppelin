@@ -84,12 +84,22 @@ variable "s3_secret" {
   type = string
 }
 
-variable "s3_endpoint" {
-  description = "S3 endpoint"
+variable "s3_url" {
+  description = "url of the S3 store"
   type = string
 }
 
 variable "hive_metastore_url" {
   description = "Url of the hive metastore"
+  type = string
+}
+
+variable "spark_sql_warehouse_dir" {
+  description = "S3 path of the spark sql warehouse"
+  type = string
+}
+
+variable "notebook_s3_bucket" {
+  description = "S3 bucket to store notebooks under"
   type = string
 }
