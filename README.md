@@ -8,6 +8,7 @@ The zeppelin server provisioned has the following characteristics:
 - It uses an hive metastore
 - It uses spark 3 in scala
 - It saves its notebooks in s3
+- It is only accessible by using its exported client and bastion security groups. This means that you'll need a reverse-proxy to expose it to the internet, which is a sensible assumption given that the provisioned zeppelin server serves over http, not https.
 
 # Motivation
 
@@ -25,7 +26,7 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - flavor_id: ID of the vm flavor used to provision the zeppelin server.
 
-- security_group_ids: Array of security group ids to assign to the zeppelin server
+- additional_security_group_ids: Array of security group ids to assign to the zeppelin server in additional to the server security group already assigned by the module.
 
 - network_id: ID of the network to attach the zeppelin server to
 
@@ -65,6 +66,10 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - ip: IP of the generated zeppelin server compute instance on the network it was attached to
 
+- groups: The security groups giving access to the zeppeling server. The exported security groups (resources of type **openstack_networking_secgroup_v2**) are:
+  - client: Clients able to access the zeppelin server over the port 8080 in http
+  - bastion: Servers able to access the zeppelin server with ssh traffic over port 22
+
 # Usage Example
 
 ```
@@ -86,7 +91,7 @@ module "zeppelin" {
   image_id = var.image_id
   flavor_id = var.flavors.small.id
   network_id = var.network.id
-  security_group_ids = [
+  additional_security_group_ids = [
     var.reference_security_groups.default.id
   ]
   keypair_name = var.bastion_internal_keypair.name

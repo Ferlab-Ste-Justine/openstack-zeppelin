@@ -14,10 +14,9 @@ variable "flavor_id" {
   type = string
 }
 
-variable "security_group_ids" {
-  description = "Security groups of the node"
+variable "additional_security_group_ids" {
+  description = "Additional security groups of the node"
   type = list(string)
-  default = ["default"]
 }
 
 variable "network_id" {
