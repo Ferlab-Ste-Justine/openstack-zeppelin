@@ -14,9 +14,15 @@ variable "flavor_id" {
   type = string
 }
 
+variable "kubernetes_workers_security_group_id" {
+  description = "Id of the security group for the kubernetes workers zeppelin will interact with"
+  type = string
+}
+
 variable "additional_security_group_ids" {
   description = "Additional security groups of the node"
   type = list(string)
+  default = []
 }
 
 variable "network_id" {
@@ -86,6 +92,11 @@ variable "s3_secret" {
 variable "s3_url" {
   description = "url of the S3 store"
   type = string
+}
+
+variable "hive_metastore_port" {
+  description = "Port of the hive metastore on the kubernetes cluster"
+  type = number
 }
 
 variable "hive_metastore_url" {

@@ -8,7 +8,6 @@ output ip {
 
 output "groups" {
   value = {
-    client = openstack_networking_secgroup_v2.zeppelin_client
     bastion = openstack_networking_secgroup_v2.zeppelin_bastion
   }
 }
