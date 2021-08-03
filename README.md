@@ -8,6 +8,7 @@ The zeppelin server provisioned has the following characteristics:
 - It uses an hive metastore
 - It uses spark 3 in scala
 - It saves its notebooks in s3
+- It expects to communite to a group of kubernetes workers to access the hive metastore and it expects its client traffic to originate from the kubernetes cluster's workers
 
 # Motivation
 
@@ -19,51 +20,58 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 # Input Variables
 
-- namespace: Namespace tag to append to created openstack resources names
+- **namespace**: Namespace tag to append to created openstack resources names
 
-- image_id: ID of the vm image used to provision the zeppelin server
+- **image_id**: ID of the vm image used to provision the zeppelin server
 
-- flavor_id: ID of the vm flavor used to provision the zeppelin server.
+- **flavor_id**: ID of the vm flavor used to provision the zeppelin server.
 
-- security_group_ids: Array of security group ids to assign to the zeppelin server
+- **kubernetes_workers_security_group_id**: Id of the kubernetes workers security group. The zeppelin will be given access on the **hive_metastore_port** port and will give access to the workers on its port **8080**.
 
-- network_id: ID of the network to attach the zeppelin server to
+- **additional_security_group_ids**: Array of security group ids to assign to the zeppelin server in additional to the server security group already assigned by the module.
 
-- keypair_name: Name of the keypair that can be used to ssh to the server
+- **network_id**: ID of the network to attach the zeppelin server to
 
-- nameserver_ips: Ips of nameservers that will be added to the list of nameservers the zeppelin server refers to to resolve domain names.
+- **keypair_name**: Name of the keypair that can be used to ssh to the server
 
-- zeppelin_mirror: Mirror to download zeppelin from. Defaults to the university of Waterloo.
+- **nameserver_ips**: Ips of nameservers that will be added to the list of nameservers the zeppelin server refers to to resolve domain names.
 
-- spark_mirror: Mirror to download spark from. Defaults to the university of Toronto.
+- **zeppelin_mirror**: Mirror to download zeppelin from. Defaults to the university of Waterloo.
 
-- k8_executor_image: Image to use to launch executor containers in kubernetes. Defaults to **chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f**
+- **spark_mirror**: Mirror to download spark from. Defaults to the university of Toronto.
 
-- k8_api_endpoint: Kubernetes api endpoint that zeppelin will use to provision executors on kubernetes.
+- **k8_executor_image**: Image to use to launch executor containers in kubernetes. Defaults to **chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f**
 
-- k8_ca_certificate: Kubernetes ca certificate that zeppelin will use to authentify the api server.
+- **k8_api_endpoint**: Kubernetes api endpoint that zeppelin will use to provision executors on kubernetes.
 
-- k8_client_certificate: Kubernetes client certificate that zeppelin will use to authentify itself to the api server.
+- **k8_ca_certificate**: Kubernetes ca certificate that zeppelin will use to authentify the api server.
 
-- k8_client_private_key: Kubernetes private key that zeppelin will use to authentify itself to the api server.
+- **k8_client_certificate**: Kubernetes client certificate that zeppelin will use to authentify itself to the api server.
 
-- s3_access: S3 access key that zeppelin will use to identify itself to the s3 provider.
+- **k8_client_private_key**: Kubernetes private key that zeppelin will use to authentify itself to the api server.
 
-- s3_secret: S3 access key that zeppelin will use to authentify itself to the S3 provider.
+- **s3_access**: S3 access key that zeppelin will use to identify itself to the s3 provider.
 
-- s3_url: url of the S3 provider that zeppelin will use.
+- **s3_secret**: S3 access key that zeppelin will use to authentify itself to the S3 provider.
 
-- hive_metastore_url: Url of the hive metastore that zeppelin will use.
+- **s3_url**: url of the S3 provider that zeppelin will use.
 
-- spark_sql_warehouse_dir: S3 path of the spark sql warehouse
+- **hive_metastore_port**: Port that zeppelin will talk to on the k8 workers to access the hive metastore. Note that you still need to specify this port in the url argument below. This argument is simply to insure that the security groups on the k8 workers grant access to zeppelin on the given port.
 
-- notebook_s3_bucket: S3 bucket under which zeppelin will store its notebooks
+- **hive_metastore_url**: Url of the hive metastore that zeppelin will use.
+
+- **spark_sql_warehouse_dir**: S3 path of the spark sql warehouse
+
+- **notebook_s3_bucket**: S3 bucket under which zeppelin will store its notebooks
 
 # Output Variables
 
 - id: ID of the generated zeppelin server compute instance
 
 - ip: IP of the generated zeppelin server compute instance on the network it was attached to
+
+- groups: The security groups giving access to the zeppeling server. The exported security groups (resources of type **openstack_networking_secgroup_v2**) are:
+  - bastion: Servers able to access the zeppelin server with ssh traffic over port 22
 
 # Usage Example
 
@@ -86,18 +94,17 @@ module "zeppelin" {
   image_id = var.image_id
   flavor_id = var.flavors.small.id
   network_id = var.network.id
-  security_group_ids = [
-    var.reference_security_groups.default.id
-  ]
+  kubernetes_workers_security_group_id = module.my_k8_cluster.groups.worker
   keypair_name = var.bastion_internal_keypair.name
   nameserver_ips = var.nameserver_ips
   k8_api_endpoint = "https://mykubernetesapi:6443"
   k8_ca_certificate = module.certificates.ca_certificate
   k8_client_certificate = module.certificates.client_certificate
   k8_client_private_key = tls_private_key.client.private_key_pem
-  s3_access = openstack_identity_ec2_credential_v3.s3_key.access
-  s3_secret = openstack_identity_ec2_credential_v3.s3_key.secret
+  s3_access = local.my_zeppelin_bucket.access
+  s3_secret = local.my_zeppelin_bucket.secret
   s3_url = "mys3server"
+  hive_metastore_port = 9083
   hive_metastore_url = "myhivemetastore:9083"
   spark_sql_warehouse_dir = spark/mywharehouse
   notebook_s3_bucket = notebooks

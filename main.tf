@@ -1,7 +1,10 @@
 resource "openstack_networking_port_v2" "zeppelin" {
   name           = var.namespace == "" ? "zeppelin" : "zeppelin-${var.namespace}"
   network_id     = var.network_id
-  security_group_ids = var.security_group_ids
+  security_group_ids = concat(
+    var.additional_security_group_ids,
+    [openstack_networking_secgroup_v2.zeppelin_server.id]
+  )
   admin_state_up = true
 }
 
