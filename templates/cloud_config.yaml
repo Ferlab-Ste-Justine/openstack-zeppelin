@@ -31,7 +31,6 @@ write_files:
     owner: root:root
     permissions: "0444"
     content: |
-      nameserver 127.0.0.53
 %{ for ip in nameserver_ips ~}
       nameserver ${ip}
 %{ endfor ~}
@@ -165,8 +164,9 @@ runcmd:
   #Add DNS Servers
   - systemctl start resolvconf.service
   - systemctl enable resolvconf.service
-  - cat /opt/dns-servers >> /etc/resolvconf/resolv.conf.d/head
+  - cat /opt/dns-servers >> /etc/resolvconf/resolv.conf.d/tail
   - systemctl restart resolvconf.service
+  - resolvconf -u
   #Install Spark
   - cd /opt
   - wget ${spark_mirror}/apache/spark/spark-3.0.3/spark-3.0.3-bin-hadoop3.2.tgz
