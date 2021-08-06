@@ -8,15 +8,6 @@ resource "openstack_networking_port_v2" "zeppelin" {
   admin_state_up = true
 }
 
-locals {
-  haproxy_config = templatefile(
-    "${path.module}/templates/haproxy.cfg",
-    {
-      s3_url = var.s3_url
-    }
-  )
-}
-
 data "template_cloudinit_config" "zeppelin" {
   gzip = true
   base64_encode = true
@@ -33,7 +24,6 @@ data "template_cloudinit_config" "zeppelin" {
         s3_access = var.s3_access
         s3_secret = var.s3_secret
         s3_url = var.s3_url
-        haproxy_config = local.haproxy_config
         hive_metastore_url = var.hive_metastore_url
         spark_sql_warehouse_dir = var.spark_sql_warehouse_dir
         k8_ca_certificate = var.k8_ca_certificate
