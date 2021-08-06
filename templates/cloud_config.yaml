@@ -178,7 +178,7 @@ runcmd:
   - cd /opt
   - wget ${zeppelin_mirror}/apache/zeppelin/zeppelin-0.9.0/zeppelin-0.9.0-bin-netinst.tgz
   - tar xvzf zeppelin-0.9.0-bin-netinst.tgz
-  - mv zeppelin-0.9.0-bin-netinst.tgz zeppelin
+  - mv zeppelin-0.9.0-bin-netinst zeppelin
   - rm zeppelin-0.9.0-bin-netinst.tgz
   - cp /opt/zeppelin-env.sh /opt/zeppelin/conf/zeppelin-env.sh
   - cp /opt/zeppelin-site.xml /opt/zeppelin/conf/zeppelin-site.xml
