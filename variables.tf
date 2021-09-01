@@ -47,12 +47,6 @@ variable "zeppelin_mirror" {
   default = "https://mirror.csclub.uwaterloo.ca"
 }
 
-variable "spark_mirror" {
-  description = "Mirror from which to download spark"
-  type = string
-  default = "https://mirror.dsrg.utoronto.ca"
-}
-
 variable "k8_executor_image" {
   description = "Image to launch k8 executor from"
   type = string

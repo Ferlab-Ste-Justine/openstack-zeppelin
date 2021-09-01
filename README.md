@@ -38,8 +38,6 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **zeppelin_mirror**: Mirror to download zeppelin from. Defaults to the university of Waterloo.
 
-- **spark_mirror**: Mirror to download spark from. Defaults to the university of Toronto.
-
 - **k8_executor_image**: Image to use to launch executor containers in kubernetes. Defaults to **chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f**
 
 - **k8_api_endpoint**: Kubernetes api endpoint that zeppelin will use to provision executors on kubernetes.
