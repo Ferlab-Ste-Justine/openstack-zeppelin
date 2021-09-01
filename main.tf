@@ -18,7 +18,6 @@ data "template_cloudinit_config" "zeppelin" {
       {
         nameserver_ips  = var.nameserver_ips
         zeppelin_mirror = var.zeppelin_mirror
-        spark_mirror = var.spark_mirror
         k8_executor_image = var.k8_executor_image
         k8_api_endpoint = var.k8_api_endpoint
         s3_access = var.s3_access
