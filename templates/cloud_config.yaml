@@ -121,10 +121,11 @@ write_files:
       spark.sql.catalogImplementation               hive
       spark.sql.extensions                          io.delta.sql.DeltaSparkSessionExtension
       spark.sql.catalog.spark_catalog               org.apache.spark.sql.delta.catalog.DeltaCatalog
-- path: /opt/shiro.ini
-  owner: root:root
-  permissions: "0400"
-  content: |
+  #Shiro configuration
+  - path: /opt/shiro.ini
+    owner: root:root
+    permissions: "0400"
+    content: |
       [main]
       oidcConfig = org.pac4j.oidc.config.OidcConfiguration
       oidcConfig.withState = false
