@@ -29,6 +29,11 @@ data "template_cloudinit_config" "zeppelin" {
         k8_client_certificate = var.k8_client_certificate
         k8_client_private_key = var.k8_client_private_key
         notebook_s3_bucket = var.notebook_s3_bucket
+        keycloak_url = var.keycloak_url
+        keycloak_realm = var.keycloak_realm
+        keycloak_client_id = var.keycloak_client_id
+        keycloak_client_secret = var.keycloak_client_secret
+        zeppelin_url = var.zeppelin_url
       }
     )
   }

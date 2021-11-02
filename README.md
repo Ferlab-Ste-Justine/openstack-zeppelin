@@ -9,6 +9,7 @@ The zeppelin server provisioned has the following characteristics:
 - It uses spark 3 in scala
 - It saves its notebooks in s3
 - It expects to communite to a group of kubernetes workers to access the hive metastore and it expects its client traffic to originate from the kubernetes cluster's workers
+- It uses keycloak for user authentication
 
 # Motivation
 
@@ -62,6 +63,16 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **notebook_s3_bucket**: S3 bucket under which zeppelin will store its notebooks
 
+- **keycloak_url**: Url of Keycloak server
+
+- **keycloak_realm**: Name of Keycloak realm
+
+- **keycloak_client_id**: Id of Keycloak client
+
+- **keycloak_client_secret**: Secret of Keycloak client
+
+- **zeppelin_url**: Url of zeppelin
+
 # Output Variables
 
 - id: ID of the generated zeppelin server compute instance
@@ -106,6 +117,11 @@ module "zeppelin" {
   hive_metastore_url = "myhivemetastore:9083"
   spark_sql_warehouse_dir = spark/mywharehouse
   notebook_s3_bucket = notebooks
+  keycloak_url = "https://auth.qa.clin.ferlab.bio"
+  keycloak_realm= clin
+  keycloak_client_id = zeppelin
+  keycloak_client_secret = local.my_zeppelin_keycloak.secret
+  zeppelin_url = https://notebook.qa.cqdg.ferlab.bio/
 }
 ```
 
