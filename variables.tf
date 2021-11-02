@@ -107,3 +107,28 @@ variable "notebook_s3_bucket" {
   description = "S3 bucket to store notebooks under"
   type = string
 }
+
+variable "keycloak_url" {
+  description = "Url of Keycloak server"
+  type = string
+}
+
+variable "keycloak_realm" {
+  description = "Name Keycloak realm"
+  type = string
+}
+
+variable "keycloak_client_id" {
+  description = "Id of Keycloak client"
+  type = string
+}
+
+variable "keycloak_client_secret" {
+  description = "Secret of Keycloak client"
+  type = string
+}
+
+variable "zeppelin_url" {
+  description = "Url of zeppelin"
+  type = string
+}
