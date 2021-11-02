@@ -239,7 +239,7 @@ packages:
   #DNS Dependency
   - resolvconf
   #Zeppelin/Spark Dependency
-  - openjdk-8-jre
+  - openjdk-11-jdk
 runcmd:
   #Add DNS Servers
   - systemctl start resolvconf.service
@@ -260,7 +260,7 @@ runcmd:
   - tar xvzf zeppelin-0.10.0-bin-netinst.tgz
   - mv zeppelin-0.10.0-bin-netinst zeppelin
   - rm zeppelin-0.10.0-bin-netinst.tgz
-  - wget https://github.com/Ferlab-Ste-Justine/zeppelin-oidc/releases/download/v0.0.22/zeppelin-oidc-jar-with-dependencies.jar
+  - wget https://github.com/Ferlab-Ste-Justine/zeppelin-oidc/releases/download/v0.1.0/zeppelin-oidc-jar-with-dependencies.jar
   - rm -rf /opt/zeppelin/lib/*
   - mv zeppelin-oidc-jar-with-dependencies.jar /opt/zeppelin/lib/
   - cp /opt/zeppelin-env.sh /opt/zeppelin/conf/zeppelin-env.sh
