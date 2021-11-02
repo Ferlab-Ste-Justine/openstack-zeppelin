@@ -114,7 +114,7 @@ variable "keycloak_url" {
 }
 
 variable "keycloak_realm" {
-  description = "Name Keycloak realm"
+  description = "Name of Keycloak realm"
   type = string
 }
 
