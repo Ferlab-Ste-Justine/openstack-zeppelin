@@ -121,6 +121,7 @@ write_files:
       spark.sql.catalogImplementation               hive
       spark.sql.extensions                          io.delta.sql.DeltaSparkSessionExtension
       spark.sql.catalog.spark_catalog               org.apache.spark.sql.delta.catalog.DeltaCatalog
+%{ if keycloak.enabled ~}
   #Shiro configuration
   - path: /opt/shiro.ini
     owner: root:root
@@ -129,9 +130,9 @@ write_files:
       [main]
       oidcConfig = org.pac4j.oidc.config.OidcConfiguration
       oidcConfig.withState = false
-      oidcConfig.discoveryURI = ${keycloak_url}/auth/realms/${keycloak_realm}/.well-known/openid-configuration
-      oidcConfig.clientId = ${keycloak_client_id}
-      oidcConfig.secret = ${keycloak_client_secret}
+      oidcConfig.discoveryURI = ${keycloak.url}/auth/realms/${keycloak.realm}/.well-known/openid-configuration
+      oidcConfig.clientId = ${keycloak.client_id}
+      oidcConfig.secret = ${keycloak.client_secret}
       oidcConfig.scope = openid profile email roles
       oidcConfig.clientAuthenticationMethodAsString = client_secret_basic
       oidcConfig.disablePkce = true
@@ -145,7 +146,7 @@ write_files:
       oidcClient = org.pac4j.oidc.client.OidcClient
       oidcClient.configuration = $oidcConfig
       oidcClient.ajaxRequestResolver = $ajaxRequestResolver
-      oidcClient.callbackUrl = ${zeppelin_url}/api/callback/
+      oidcClient.callbackUrl = ${keycloak.zeppelin_url}/api/callback/
       oidcClient.ajaxRequestResolver = $ajaxRequestResolver
       oidcClient.authorizationGenerators = $authorizationGenerator
 
@@ -173,7 +174,7 @@ write_files:
       customCallbackLogic = bio.ferlab.pac4j.ForceDefaultURLCallbackLogic
 
       callbackFilter = io.buji.pac4j.filter.CallbackFilter
-      callbackFilter.defaultUrl = ${zeppelin_url}
+      callbackFilter.defaultUrl = ${keycloak.zeppelin_url}
       callbackFilter.config = $config
       callbackFilter.callbackLogic = $customCallbackLogic
 
@@ -200,6 +201,7 @@ write_files:
       /api/configurations/** = oidcSecurityFilter, roles[clin_administrator]
       /api/credential/** = oidcSecurityFilter, roles[clin_administrator]
       /** = oidcSecurityFilter
+%{ endif ~}
 
   #Kubernetes Certificates
   - path: /opt/k8/ca.crt
@@ -256,15 +258,17 @@ runcmd:
   - cp /opt/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
   #Install Zeppelin
   - cd /opt
-  - wget ${zeppelin_mirror}/apache/zeppelin/zeppelin-0.10.0/zeppelin-0.10.0-bin-netinst.tgz
-  - tar xvzf zeppelin-0.10.0-bin-netinst.tgz
-  - mv zeppelin-0.10.0-bin-netinst zeppelin
-  - rm zeppelin-0.10.0-bin-netinst.tgz
+  - wget ${zeppelin_mirror}/apache/zeppelin/zeppelin-${zeppelin_version}/zeppelin-${zeppelin_version}-bin-netinst.tgz
+  - tar xvzf zeppelin-${zeppelin_version}-bin-netinst.tgz
+  - mv zeppelin-${zeppelin_version}-bin-netinst zeppelin
+  - rm zeppelin-${zeppelin_version}-bin-netinst.tgz
+%{ if keycloak.enabled ~}
   - wget https://github.com/Ferlab-Ste-Justine/zeppelin-oidc/releases/download/v0.1.0/zeppelin-oidc-jar-with-dependencies.jar
   - rm -rf /opt/zeppelin/lib/*
   - mv zeppelin-oidc-jar-with-dependencies.jar /opt/zeppelin/lib/
+  - cp /opt/shiro.ini /opt/zeppelin/conf/shiro.ini
+%{ endif ~}
   - cp /opt/zeppelin-env.sh /opt/zeppelin/conf/zeppelin-env.sh
   - cp /opt/zeppelin-site.xml /opt/zeppelin/conf/zeppelin-site.xml
-  - cp /opt/shiro.ini /opt/zeppelin/conf/shiro.ini
   - systemctl enable zeppelin
   - systemctl start zeppelin

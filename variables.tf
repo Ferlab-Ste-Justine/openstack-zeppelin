@@ -41,6 +41,12 @@ variable "nameserver_ips" {
   default = []
 }
 
+variable "zeppelin_version" {
+  description = "Version of zeppelin"
+  type = string
+  default = "0.10.1"
+}
+
 variable "zeppelin_mirror" {
   description = "Mirror from which to download zeppelin"
   type = string
@@ -108,27 +114,22 @@ variable "notebook_s3_bucket" {
   type = string
 }
 
-variable "keycloak_url" {
-  description = "Url of Keycloak server"
-  type = string
-}
-
-variable "keycloak_realm" {
-  description = "Name of Keycloak realm"
-  type = string
-}
-
-variable "keycloak_client_id" {
-  description = "Id of Keycloak client"
-  type = string
-}
-
-variable "keycloak_client_secret" {
-  description = "Secret of Keycloak client"
-  type = string
-}
-
-variable "zeppelin_url" {
-  description = "Url of zeppelin"
-  type = string
+variable "keycloak" {
+  description = "Keycloak configuration for user authentication"
+  type        = object({
+    enabled       = bool
+    url           = string
+    realm         = string
+    client_id     = string
+    client_secret = string
+    zeppelin_url  = string
+  })
+  default = {
+    enabled       = false
+    url           = ""
+    realm         = ""
+    client_id     = ""
+    client_secret = ""
+    zeppelin_url  = ""
+  }
 }

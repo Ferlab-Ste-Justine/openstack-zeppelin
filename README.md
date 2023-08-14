@@ -9,7 +9,7 @@ The zeppelin server provisioned has the following characteristics:
 - It uses spark 3 in scala
 - It saves its notebooks in s3
 - It expects to communite to a group of kubernetes workers to access the hive metastore and it expects its client traffic to originate from the kubernetes cluster's workers
-- It uses keycloak for user authentication
+- It can use keycloak for user authentication (with shiro)
 
 # Motivation
 
@@ -37,6 +37,8 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **nameserver_ips**: Ips of nameservers that will be added to the list of nameservers the zeppelin server refers to to resolve domain names.
 
+- **zeppelin_version**: Version of zeppelin. Defaults to **0.10.1**
+
 - **zeppelin_mirror**: Mirror to download zeppelin from. Defaults to the university of Waterloo.
 
 - **k8_executor_image**: Image to use to launch executor containers in kubernetes. Defaults to **chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f**
@@ -59,19 +61,17 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **hive_metastore_url**: Url of the hive metastore that zeppelin will use.
 
-- **spark_sql_warehouse_dir**: S3 path of the spark sql warehouse
+- **spark_sql_warehouse_dir**: S3 path of the spark sql warehouse.
 
-- **notebook_s3_bucket**: S3 bucket under which zeppelin will store its notebooks
+- **notebook_s3_bucket**: S3 bucket under which zeppelin will store its notebooks.
 
-- **keycloak_url**: Url of Keycloak server
-
-- **keycloak_realm**: Name of Keycloak realm
-
-- **keycloak_client_id**: Id of Keycloak client
-
-- **keycloak_client_secret**: Secret of Keycloak client
-
-- **zeppelin_url**: Url of zeppelin
+- **keycloak**: Keycloak configuration for user authentication.
+  - **enabled**: If set to false (the default), no user authentication will be in place.
+  - **url**: Url of keycloak server.
+  - **realm**: Name of keycloak realm.
+  - **client_id**: Id of keycloak client.
+  - **client_secret**: Secret of keycloak client.
+  - **zeppelin_url**: Url of zeppelin.
 
 # Output Variables
 
@@ -117,11 +117,5 @@ module "zeppelin" {
   hive_metastore_url = "myhivemetastore:9083"
   spark_sql_warehouse_dir = spark/mywharehouse
   notebook_s3_bucket = notebooks
-  keycloak_url = "https://auth.qa.clin.ferlab.bio"
-  keycloak_realm= clin
-  keycloak_client_id = zeppelin
-  keycloak_client_secret = local.my_zeppelin_keycloak.secret
-  zeppelin_url = https://notebook.qa.cqdg.ferlab.bio/
 }
 ```
-
