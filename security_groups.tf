@@ -1,11 +1,11 @@
 resource "openstack_networking_secgroup_v2" "zeppelin_server" {
-  name                 = "zeppelin-${var.namespace}"
+  name                 = "${var.name}-server"
   description          = "Security group for zeppelin server"
   delete_default_rules = true
 }
 
 resource "openstack_networking_secgroup_v2" "zeppelin_bastion" {
-  name                 = "zeppelin-bastion-${var.namespace}"
+  name                 = "${var.name}-bastion"
   description          = "Security group for the bastion connecting to zeppelin server"
   delete_default_rules = true
 }

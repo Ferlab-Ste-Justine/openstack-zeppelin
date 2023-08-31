@@ -21,9 +21,11 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 # Input Variables
 
-- **namespace**: Namespace tag to append to created openstack resources names
+- **name**: Name to give to the vm, its port and the prefix of security groups
 
-- **image_id**: ID of the vm image used to provision the zeppelin server
+- **image_source**: Source of the image to provision the zeppelin server on. It takes the following keys (only one of the two fields should be used, the other one should be empty):
+  - **image_id**: Id of the image to associate with a vm that has local storage
+  - **volume_id**: Id of a volume containing the os to associate with the vm
 
 - **flavor_id**: ID of the vm flavor used to provision the zeppelin server.
 
@@ -99,8 +101,11 @@ module "certificates" {
 
 module "zeppelin" {
   source = "git::https://github.com/Ferlab-Ste-Justine/openstack-zeppelin.git"
-  namespace = var.namespace
-  image_id = var.image_id
+  name = var.name
+  image_source = {
+    image_id = var.image_id
+    volume_id = ""
+  }
   flavor_id = var.flavors.small.id
   network_id = var.network.id
   kubernetes_workers_security_group_id = module.my_k8_cluster.groups.worker
