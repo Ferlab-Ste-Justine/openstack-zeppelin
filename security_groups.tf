@@ -80,7 +80,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v4" {
 resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v6" {
   direction         = "ingress"
   ethertype         = "IPv6"
-  protocol          = "icmp"
+  protocol          = "ipv6-icmp"
   remote_group_id  = var.kubernetes_workers_security_group_id
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
@@ -96,7 +96,7 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_icmp_access_v4" {
 resource "openstack_networking_secgroup_rule_v2" "bastion_icmp_access_v6" {
   direction         = "ingress"
   ethertype         = "IPv6"
-  protocol          = "icmp"
+  protocol          = "ipv6-icmp"
   remote_group_id  = openstack_networking_secgroup_v2.zeppelin_bastion.id
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
@@ -131,7 +131,7 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_v4" {
 resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_v6" {
   direction         = "ingress"
   ethertype         = "IPv6"
-  protocol          = "icmp"
+  protocol          = "ipv6-icmp"
   remote_group_id  = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
 }
