@@ -38,6 +38,12 @@ variable "keypair_name" {
   type = string
 }
 
+variable "bastion_security_group_id" {
+  description = "Id of pre-existing security group to add bastion rules to"
+  type = string
+  default = ""
+}
+
 variable "nameserver_ips" {
   description = "Ips of the nameservers"
   type = list(string)

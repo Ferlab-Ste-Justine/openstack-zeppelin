@@ -10,6 +10,10 @@ resource "openstack_networking_secgroup_v2" "zeppelin_bastion" {
   delete_default_rules = true
 }
 
+locals {
+  bastion_group_ids = var.bastion_security_group_id != "" ? [var.bastion_security_group_id, openstack_networking_secgroup_v2.zeppelin_bastion.id] : [openstack_networking_secgroup_v2.zeppelin_bastion.id]
+}
+
 //Allow all outbound traffic for server and bastion
 resource "openstack_networking_secgroup_rule_v2" "zeppelin_server_outgoing_v4" {
   direction         = "egress"
@@ -37,12 +41,13 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_bastion_outgoing_v6" 
 
 //Allow port 22 traffic from the bastion
 resource "openstack_networking_secgroup_rule_v2" "internal_ssh_access" {
+  for_each          = { for idx, id in local.bastion_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_bastion.id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
@@ -64,7 +69,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8_workers_zeppelin_access" {
   protocol          = "tcp"
   port_range_min    = 8080
   port_range_max    = 8080
-  remote_group_id  = var.kubernetes_workers_security_group_id
+  remote_group_id   = var.kubernetes_workers_security_group_id
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
@@ -73,7 +78,7 @@ resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v4" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
-  remote_group_id  = var.kubernetes_workers_security_group_id
+  remote_group_id   = var.kubernetes_workers_security_group_id
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
@@ -81,23 +86,25 @@ resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v6" {
   direction         = "ingress"
   ethertype         = "IPv6"
   protocol          = "ipv6-icmp"
-  remote_group_id  = var.kubernetes_workers_security_group_id
+  remote_group_id   = var.kubernetes_workers_security_group_id
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "bastion_icmp_access_v4" {
+  for_each          = { for idx, id in local.bastion_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_bastion.id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
 resource "openstack_networking_secgroup_rule_v2" "bastion_icmp_access_v6" {
+  for_each          = { for idx, id in local.bastion_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv6"
   protocol          = "ipv6-icmp"
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_bastion.id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
@@ -116,7 +123,7 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_hive" {
   protocol          = "tcp"
   port_range_min    = var.hive_metastore_port
   port_range_max    = var.hive_metastore_port
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_server.id
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
 }
 
@@ -124,7 +131,7 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_v4" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_server.id
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
 }
 
@@ -132,6 +139,6 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_v6" {
   direction         = "ingress"
   ethertype         = "IPv6"
   protocol          = "ipv6-icmp"
-  remote_group_id  = openstack_networking_secgroup_v2.zeppelin_server.id
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
 }
