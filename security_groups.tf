@@ -116,13 +116,23 @@ resource "openstack_networking_secgroup_rule_v2" "bastion_external_icmp_access" 
   security_group_id = openstack_networking_secgroup_v2.zeppelin_bastion.id
 }
 
-//Grant the zeppelin server access to the hive metastore port and icmp on the k8 workers
-resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_hive" {
+//Grant the zeppelin server access to the hive metastore port, fluentbit port and icmp on the k8 workers
+resource "openstack_networking_secgroup_rule_v2" "zeppelin_tcp_access_hive" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = var.hive_metastore_port
   port_range_max    = var.hive_metastore_port
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
+  security_group_id = var.kubernetes_workers_security_group_id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "zeppelin_tcp_access_fluentbit" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = var.fluentbit.forward.port
+  port_range_max    = var.fluentbit.forward.port
   remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
 }

@@ -142,3 +142,39 @@ variable "keycloak" {
     zeppelin_url  = ""
   }
 }
+
+variable "fluentbit" {
+  description = "Fluent-bit configuration"
+  type = object({
+    enabled           = bool
+    zeppelin_tag      = string
+    node_exporter_tag = string
+    metrics           = object({
+      enabled = bool
+      port    = number
+    })
+    forward = object({
+      domain     = string
+      port       = number
+      hostname   = string
+      shared_key = string
+      ca_cert    = string
+    })
+  })
+  default = {
+    enabled           = false
+    zeppelin_tag      = ""
+    node_exporter_tag = ""
+    metrics           = {
+      enabled = false
+      port    = 0
+    }
+    forward = {
+      domain     = ""
+      port       = 0
+      hostname   = ""
+      shared_key = ""
+      ca_cert    = ""
+    }
+  }
+}

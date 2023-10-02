@@ -77,6 +77,20 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
   - **client_secret**: Secret of keycloak client.
   - **zeppelin_url**: Url of zeppelin.
 
+- **fluentbit**: Optional fluent-bit configuration to securely route logs to a fluentd/fluent-bit node using the forward plugin. It has the following keys:
+  - **enabled**: If set to false (the default), fluent-bit will not be installed.
+  - **metrics**: Configuration for metrics fluent-bit exposes.
+    - **enabled**: Whether to enable the metrics or not
+    - **port**: Port to expose the metrics on
+  - **zeppelin_tag**: Tag to assign to logs coming from zeppelin
+  - **node_exporter_tag** Tag to assign to logs coming from the prometheus node exporter
+  - **forward**: Configuration for the forward plugin that will talk to the external fluentd/fluent-bit node. It has the following keys:
+    - **domain**: Ip or domain name of the remote fluentd node.
+    - **port**: Port the remote fluentd node listens on
+    - **hostname**: Unique hostname identifier for the vm
+    - **shared_key**: Secret shared key with the remote fluentd node to authentify the client
+    - **ca_cert**: CA certificate that signed the remote fluentd node's server certificate (used to authentify it)
+
 # Output Variables
 
 - id: ID of the generated zeppelin server compute instance
