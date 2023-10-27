@@ -11,7 +11,7 @@ resource "openstack_networking_secgroup_v2" "zeppelin_bastion" {
 }
 
 locals {
-  bastion_group_ids = var.bastion_security_group_id != "" ? [var.bastion_security_group_id, openstack_networking_secgroup_v2.zeppelin_bastion.id] : [openstack_networking_secgroup_v2.zeppelin_bastion.id]
+  bastion_group_ids = concat(var.bastion_group_ids, [openstack_networking_secgroup_v2.zeppelin_bastion.id])
 }
 
 //Allow all outbound traffic for server and bastion
@@ -62,34 +62,37 @@ resource "openstack_networking_secgroup_rule_v2" "external_ssh_access" {
   security_group_id = openstack_networking_secgroup_v2.zeppelin_bastion.id
 }
 
-//Allow incoming port 8080 traffic from the k8 workers
-resource "openstack_networking_secgroup_rule_v2" "k8_workers_zeppelin_access" {
+//Allow zeppelin port and icmp for client
+resource "openstack_networking_secgroup_rule_v2" "client_zeppelin_access" {
+  for_each          = { for idx, id in var.client_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 8080
   port_range_max    = 8080
-  remote_group_id   = var.kubernetes_workers_security_group_id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
-//Allow k8 workers and bastion to use icmp
-resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v4" {
+resource "openstack_networking_secgroup_rule_v2" "client_icmp_access_v4" {
+  for_each          = { for idx, id in var.client_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
-  remote_group_id   = var.kubernetes_workers_security_group_id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
-resource "openstack_networking_secgroup_rule_v2" "k8_workers_icmp_access_v6" {
+resource "openstack_networking_secgroup_rule_v2" "client_icmp_access_v6" {
+  for_each          = { for idx, id in var.client_group_ids : idx => id }
   direction         = "ingress"
   ethertype         = "IPv6"
   protocol          = "ipv6-icmp"
-  remote_group_id   = var.kubernetes_workers_security_group_id
+  remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
 
+//Allow bastion to use icmp
 resource "openstack_networking_secgroup_rule_v2" "bastion_icmp_access_v4" {
   for_each          = { for idx, id in local.bastion_group_ids : idx => id }
   direction         = "ingress"
@@ -141,4 +144,34 @@ resource "openstack_networking_secgroup_rule_v2" "zeppelin_icmp_access_v6" {
   protocol          = "ipv6-icmp"
   remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.kubernetes_workers_security_group_id
+}
+
+//Allow port 9100 and icmp traffic from metrics server
+resource "openstack_networking_secgroup_rule_v2" "metrics_server_node_exporter_access" {
+  for_each          = { for idx, id in var.metrics_server_group_ids : idx => id }
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 9100
+  port_range_max    = 9100
+  remote_group_id   = each.value
+  security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "metrics_server_icmp_access_v4" {
+  for_each          = { for idx, id in var.metrics_server_group_ids : idx => id }
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_group_id   = each.value
+  security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "metrics_server_icmp_access_v6" {
+  for_each          = { for idx, id in var.metrics_server_group_ids : idx => id }
+  direction         = "ingress"
+  ethertype         = "IPv6"
+  protocol          = "ipv6-icmp"
+  remote_group_id   = each.value
+  security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }

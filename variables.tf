@@ -38,10 +38,22 @@ variable "keypair_name" {
   type = string
 }
 
-variable "bastion_security_group_id" {
-  description = "Id of pre-existing security group to add bastion rules to"
-  type = string
-  default = ""
+variable "client_group_ids" {
+  description = "Id of client security groups"
+  type = list(string)
+  default = []
+}
+
+variable "bastion_group_ids" {
+  description = "Id of bastion security groups"
+  type = list(string)
+  default = []
+}
+
+variable "metrics_server_group_ids" {
+  description = "Id of metric servers security groups"
+  type = list(string)
+  default = []
 }
 
 variable "nameserver_ips" {

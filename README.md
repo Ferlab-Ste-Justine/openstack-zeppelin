@@ -37,7 +37,11 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **keypair_name**: Name of the keypair that can be used to ssh to the server
 
-- **bastion_security_group_id**: Id of pre-existing security group to add bastion rules to (defaults to "")
+- **client_group_ids**: List of ids of security groups that should have **client** access to the zeppelin server
+
+- **bastion_group_ids**: List of ids of security groups that should have **bastion** access to the zeppelin server
+
+- **metrics_server_group_ids**: List of ids of security groups that should have **metrics server** access to the zeppelin server
 
 - **nameserver_ips**: Ips of nameservers that will be added to the list of nameservers the zeppelin server refers to to resolve domain names.
 
