@@ -1,31 +1,7 @@
 #cloud-config
 users:
   - default
-  - name: node-exporter
-    system: true
-    lock_passwd: true
 write_files:
-  #Prometheus node exporter systemd configuration
-  - path: /etc/systemd/system/node-exporter.service
-    owner: root:root
-    permissions: "0444"
-    content: |
-      [Unit]
-      Description="Prometheus Node Exporter"
-      Wants=network-online.target
-      After=network-online.target
-      StartLimitIntervalSec=0
-
-      [Service]
-      User=node-exporter
-      Group=node-exporter
-      Type=simple
-      Restart=always
-      RestartSec=1
-      ExecStart=/usr/local/bin/node_exporter
-
-      [Install]
-      WantedBy=multi-user.target
   #DNS servers containing internal domain names
   - path: /opt/dns-servers
     owner: root:root

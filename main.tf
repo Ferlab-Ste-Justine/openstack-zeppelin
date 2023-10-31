@@ -30,6 +30,11 @@ locals {
             keycloak                = var.keycloak
           }
         )
+      },
+      {
+        filename     = "node_exporter.cfg"
+        content_type = "text/cloud-config"
+        content      = module.prometheus_node_exporter_configs.configuration
       }
     ],
     var.fluentbit.enabled ? [{
@@ -40,8 +45,13 @@ locals {
   )
 }
 
+module "prometheus_node_exporter_configs" {
+  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//prometheus-node-exporter?ref=v0.14.2"
+  install_dependencies = true
+}
+
 module "fluentbit_configs" {
-  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//fluent-bit?ref=v0.13.1"
+  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//fluent-bit?ref=v0.14.2"
   install_dependencies = true
   fluentbit = {
     metrics          = var.fluentbit.metrics
