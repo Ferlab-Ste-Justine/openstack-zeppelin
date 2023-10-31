@@ -234,7 +234,7 @@ runcmd:
   - cp /opt/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
   #Install Zeppelin
   - cd /opt
-  - wget ${zeppelin_mirror}/apache/zeppelin/zeppelin-${zeppelin_version}/zeppelin-${zeppelin_version}-bin-netinst.tgz
+  - wget ${zeppelin_mirror}/zeppelin/zeppelin-${zeppelin_version}/zeppelin-${zeppelin_version}-bin-netinst.tgz
   - tar xvzf zeppelin-${zeppelin_version}-bin-netinst.tgz
   - mv zeppelin-${zeppelin_version}-bin-netinst zeppelin
   - rm zeppelin-${zeppelin_version}-bin-netinst.tgz

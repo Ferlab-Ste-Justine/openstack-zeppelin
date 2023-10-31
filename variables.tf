@@ -71,7 +71,7 @@ variable "zeppelin_version" {
 variable "zeppelin_mirror" {
   description = "Mirror from which to download zeppelin"
   type = string
-  default = "https://mirror.csclub.uwaterloo.ca"
+  default = "https://mirror.csclub.uwaterloo.ca/apache"
 }
 
 variable "k8_executor_image" {
