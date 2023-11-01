@@ -175,3 +175,33 @@ resource "openstack_networking_secgroup_rule_v2" "metrics_server_icmp_access_v6"
   remote_group_id   = each.value
   security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
 }
+
+//Grant the zeppelin server access to the fluentd port and icmp on a fluentd node
+resource "openstack_networking_secgroup_rule_v2" "fluentd_tcp_access" {
+  count             = var.fluentd_security_group.id != "" ? 1 : 0
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = var.fluentd_security_group.port
+  port_range_max    = var.fluentd_security_group.port
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
+  security_group_id = var.fluentd_security_group.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "fluentd_icmp_access_v4" {
+  count             = var.fluentd_security_group.id != "" ? 1 : 0
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
+  security_group_id = var.fluentd_security_group.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "fluentd_icmp_access_v6" {
+  count             = var.fluentd_security_group.id != "" ? 1 : 0
+  direction         = "ingress"
+  ethertype         = "IPv6"
+  protocol          = "ipv6-icmp"
+  remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
+  security_group_id = var.fluentd_security_group.id
+}

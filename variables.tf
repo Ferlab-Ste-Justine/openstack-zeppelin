@@ -28,6 +28,18 @@ variable "additional_security_group_ids" {
   default = []
 }
 
+variable "fluentd_security_group" {
+  description = "Fluentd security group configuration"
+  type = object({
+    id = string
+    port = number
+  })
+  default = {
+    id = ""
+    port = 0
+  }
+}
+
 variable "network_id" {
   description = "Id of the network the node will be attached to"
   type = string

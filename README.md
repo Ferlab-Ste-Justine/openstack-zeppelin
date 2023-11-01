@@ -33,6 +33,10 @@ So instead, we made the tradeof of having a saner zeppelin deployment that runs 
 
 - **additional_security_group_ids**: Array of security group ids to assign to the zeppelin server in additional to the server security group already assigned by the module.
 
+- **fluentd_security_group**: Optional fluentd security group configuration. It has the following keys:
+  - **id**: Id of pre-existing security group to add fluentd rules to
+  - **port**: Port the remote fluentd node listens on
+
 - **network_id**: ID of the network to attach the zeppelin server to
 
 - **keypair_name**: Name of the keypair that can be used to ssh to the server
