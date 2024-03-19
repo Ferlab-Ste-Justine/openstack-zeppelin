@@ -77,7 +77,7 @@ variable "nameserver_ips" {
 variable "zeppelin_version" {
   description = "Version of zeppelin"
   type = string
-  default = "0.10.1"
+  default = "0.11.0"
 }
 
 variable "zeppelin_mirror" {
@@ -89,7 +89,17 @@ variable "zeppelin_mirror" {
 variable "k8_executor_image" {
   description = "Image to launch k8 executor from"
   type = string
-  default = "chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f"
+  default = "apache/spark:3.5.1"
+}
+
+variable "k8_service_account_name" {
+  description = "Service account name to use"
+  type = string
+}
+
+variable "k8_namespace" {
+  description = "Namespace to use"
+  type = string
 }
 
 variable "k8_api_endpoint" {
@@ -107,8 +117,23 @@ variable "k8_client_certificate" {
   type = string
 }
 
-variable "k8_client_private_key" {
-  description = "Client private key to access kubernetes api"
+variable "k8_secret_s3" {
+  description = "Name of kubernetes secret to use for S3 credentials for executors pods"
+  type = string
+}
+
+variable "k8_secret_s3_access_key" {
+  description = "Key in k8_secret_s3 secret which contains the S3 access key"
+  type = string
+}
+
+variable "k8_secret_s3_secret_key" {
+  description = "Key in k8_secret_s3 secret which contains the S3 secret key"
+  type = string
+}
+
+variable "s3_access" {
+  description = "S3 access key"
   type = string
 }
 
@@ -140,6 +165,24 @@ variable "hive_metastore_url" {
 variable "spark_sql_warehouse_dir" {
   description = "S3 path of the spark sql warehouse"
   type = string
+}
+
+variable "spark_max_excutors" {
+  description = "Number maximum of spark executors"
+  type = number
+  default = 15
+}
+
+variable "spark_min_excutors" {
+  description = "Number minimum of spark executors"
+  type = number
+  default = 0
+}
+
+variable spark_dynamic_allocation_enabled {
+  description = "Enable dynamic allocation of spark executors"
+  type = bool
+  default = true
 }
 
 variable "notebook_s3_bucket" {
