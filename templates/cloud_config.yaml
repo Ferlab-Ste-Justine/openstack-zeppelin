@@ -107,8 +107,8 @@ write_files:
       spark.executor.extraJavaOptions               "-Divy.cache.dir=/tmp -Divy.home=/tmp"
       spark.dynamicAllocation.shuffleTracking.enabled ${spark_dynamic_allocation_enabled}
       spark.dynamicAllocation.enabled               ${spark_dynamic_allocation_enabled}
-      spark.dynamicAllocation.maxExecutors          ${spark_max_excutors}
-      spark.dynamicAllocation.minExecutors          ${spark_min_excutors}
+      spark.dynamicAllocation.maxExecutors          ${spark_max_executors}
+      spark.dynamicAllocation.minExecutors          ${spark_min_executors}
       spark.dynamicAllocation.shuffleTracking.timeout 60s
       spark.network.crypto.enabled                  true
       spark.authenticate                            true

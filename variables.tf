@@ -167,13 +167,13 @@ variable "spark_sql_warehouse_dir" {
   type = string
 }
 
-variable "spark_max_excutors" {
+variable "spark_max_executors" {
   description = "Number maximum of spark executors"
   type = number
   default = 15
 }
 
-variable "spark_min_excutors" {
+variable "spark_max_executors" {
   description = "Number minimum of spark executors"
   type = number
   default = 0
