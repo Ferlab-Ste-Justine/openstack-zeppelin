@@ -168,7 +168,7 @@ variable "spark_max_executors" {
   default = 15
 }
 
-variable "spark_max_executors" {
+variable "spark_min_executors" {
   description = "Number minimum of spark executors"
   type = number
   default = 0
