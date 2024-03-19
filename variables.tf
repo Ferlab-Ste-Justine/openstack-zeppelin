@@ -137,11 +137,6 @@ variable "s3_access" {
   type = string
 }
 
-variable "s3_access" {
-  description = "S3 access key"
-  type = string
-}
-
 variable "s3_secret" {
   description = "S3 secret key"
   type = string
