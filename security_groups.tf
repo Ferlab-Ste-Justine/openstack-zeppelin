@@ -205,3 +205,22 @@ resource "openstack_networking_secgroup_rule_v2" "fluentd_icmp_access_v6" {
   remote_group_id   = openstack_networking_secgroup_v2.zeppelin_server.id
   security_group_id = var.fluentd_security_group.id
 }
+
+locals {
+  combined_k8s_group_ids = toset([
+    var.kubernetes_workers_security_group_id, 
+    var.kubernetes_lb_security_group_id,
+  ])
+}
+
+# Allow ingress traffic from Kubernetes workers and LBs to Zeppelin server on all TCP ports
+resource "openstack_networking_secgroup_rule_v2" "zeppelin_from_k8s_all_ports" {
+  for_each          = local.combined_k8s_group_ids
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1
+  port_range_max    = 65535
+  remote_group_id   = each.value
+  security_group_id = openstack_networking_secgroup_v2.zeppelin_server.id
+}

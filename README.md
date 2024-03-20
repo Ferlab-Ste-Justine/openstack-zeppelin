@@ -1,150 +1,59 @@
 # About
 
-This terraform module will provision a zeppelin vm in openstack.
-
-The zeppelin server provisioned has the following characteristics:
-- It provisions executors in a kubernetes cluster
-- It uses s3
-- It uses an hive metastore
-- It uses spark 3 in scala
-- It saves its notebooks in s3
-- It expects to communite to a group of kubernetes workers to access the hive metastore and it expects its client traffic to originate from the kubernetes cluster's workers
-- It can use keycloak for user authentication (with shiro)
+This Terraform module provisions a Zeppelin VM in OpenStack. The Zeppelin server provisioned has the following characteristics:
+- Provisions executors in a Kubernetes cluster.
+- Uses S3 for storage.
+- Utilizes an Hive metastore.
+- Operates with Spark 3 in Scala.
+- Saves its notebooks in S3.
+- Expects to communicate with a group of Kubernetes workers to access the Hive metastore, with client traffic originating from the Kubernetes cluster's workers.
+- Can use Keycloak for user authentication (with Shiro).
 
 # Motivation
 
-We experimented orchestrating zeppelin directly in kubernetes using its built-in support for kubernetes, but we felt it was too bleeding edge at the current time.
-
-It didn't work well out of the box and while we were approaching a working solution tweaking it, we came to the realisation that the end result would not be easy to maintain in the future.
-
-So instead, we made the tradeof of having a saner zeppelin deployment that runs outside of kubernetes while still having the executor that it spawns still run in kubernetes (which is what we care most about).
+We experimented with orchestrating Zeppelin directly in Kubernetes using its built-in support for Kubernetes but found it too bleeding edge for current needs. It didn't work well out of the box, and while tweaking it towards a working solution, we realized the end result would be challenging to maintain. Therefore, we opted for a more manageable Zeppelin deployment outside of Kubernetes, with executors still running in Kubernetes.
 
 # Input Variables
 
-- **name**: Name to give to the vm, its port and the prefix of security groups
+- **`name`**: Name to give to the VM, its port, and the prefix of security groups. It is a required variable with no default value.
 
-- **image_source**: Source of the image to provision the zeppelin server on. It takes the following keys (only one of the two fields should be used, the other one should be empty):
-  - **image_id**: Id of the image to associate with a vm that has local storage
-  - **volume_id**: Id of a volume containing the os to associate with the vm
+- **`image_source`**: Source of the VM's image. This object has two keys, `image_id` for an image to associate with a VM that has local storage, and `volume_id` for a volume containing the OS to associate with the VM. Only one of the two fields should be used, with the other set to an empty string.
 
-- **flavor_id**: ID of the vm flavor used to provision the zeppelin server.
+- **`flavor_id`**: ID of the VM flavor used to provision the Zeppelin server.
 
-- **kubernetes_workers_security_group_id**: Id of the kubernetes workers security group. The zeppelin will be given access on the **hive_metastore_port** port and will give access to the workers on its port **8080**.
+- **`kubernetes_workers_security_group_id`**: ID of the security group for the Kubernetes workers Zeppelin will interact with. Zeppelin will be given access on the `hive_metastore_port` port and will give access to the workers on its port `8080`.
 
-- **additional_security_group_ids**: Array of security group ids to assign to the zeppelin server in additional to the server security group already assigned by the module.
+- **`kubernetes_lb_security_group_id`**: Security group ID for Kubernetes load balancers.
 
-- **fluentd_security_group**: Optional fluentd security group configuration. It has the following keys:
-  - **id**: Id of pre-existing security group to add fluentd rules to
-  - **port**: Port the remote fluentd node listens on
+- **`additional_security_group_ids`**: Array of additional security group IDs to assign to the Zeppelin server in addition to the server security group already assigned by the module.
 
-- **network_id**: ID of the network to attach the zeppelin server to
+- **`fluentd_security_group`**: Optional Fluentd security group configuration. It includes an `id` for the security group to add Fluentd rules to and a `port` the remote Fluentd node listens on.
 
-- **keypair_name**: Name of the keypair that can be used to ssh to the server
+- **`network_id`**: ID of the network to attach the Zeppelin server to.
 
-- **client_group_ids**: List of ids of security groups that should have **client** access to the zeppelin server
+- **`keypair_name`**: Name of the keypair that can be used to SSH to the server.
 
-- **bastion_group_ids**: List of ids of security groups that should have **bastion** access to the zeppelin server
+- **`client_group_ids`**: List of IDs of security groups that should have client access to the Zeppelin server.
 
-- **metrics_server_group_ids**: List of ids of security groups that should have **metrics server** access to the zeppelin server
+- **`bastion_group_ids`**: List of IDs of security groups that should have bastion access to the Zeppelin server.
 
-- **nameserver_ips**: Ips of nameservers that will be added to the list of nameservers the zeppelin server refers to to resolve domain names.
+- **`metrics_server_group_ids`**: List of IDs of security groups that should have metrics server access to the Zeppelin server.
 
-- **zeppelin_version**: Version of zeppelin. Defaults to **0.10.1**
+- **`nameserver_ips`**: IPs of nameservers that will be added to the list of nameservers the Zeppelin server refers to resolve domain names.
 
-- **zeppelin_mirror**: Mirror to download zeppelin from. Defaults to the university of Waterloo.
+- **`zeppelin_version`**: Version of Zeppelin. Defaults to `0.11.0`.
 
-- **k8_executor_image**: Image to use to launch executor containers in kubernetes. Defaults to **chusj/spark:7508c20ef44952f1ee2af91a26822b6efc10998f**
+- **`zeppelin_mirror`**: Mirror from which to download Zeppelin. Defaults to `https://mirror.csclub.uwaterloo.ca/apache`.
 
-- **k8_api_endpoint**: Kubernetes api endpoint that zeppelin will use to provision executors on kubernetes.
+- **`k8_executor_image`**: Image to use to launch executor containers in Kubernetes. Defaults to `apache/spark:3.5.1`.
 
-- **k8_ca_certificate**: Kubernetes ca certificate that zeppelin will use to authentify the api server.
-
-- **k8_client_certificate**: Kubernetes client certificate that zeppelin will use to authentify itself to the api server.
-
-- **k8_client_private_key**: Kubernetes private key that zeppelin will use to authentify itself to the api server.
-
-- **s3_access**: S3 access key that zeppelin will use to identify itself to the s3 provider.
-
-- **s3_secret**: S3 access key that zeppelin will use to authentify itself to the S3 provider.
-
-- **s3_url**: url of the S3 provider that zeppelin will use.
-
-- **hive_metastore_port**: Port that zeppelin will talk to on the k8 workers to access the hive metastore. Note that you still need to specify this port in the url argument below. This argument is simply to insure that the security groups on the k8 workers grant access to zeppelin on the given port.
-
-- **hive_metastore_url**: Url of the hive metastore that zeppelin will use.
-
-- **spark_sql_warehouse_dir**: S3 path of the spark sql warehouse.
-
-- **notebook_s3_bucket**: S3 bucket under which zeppelin will store its notebooks.
-
-- **keycloak**: Keycloak configuration for user authentication.
-  - **enabled**: If set to false (the default), no user authentication will be in place.
-  - **url**: Url of keycloak server.
-  - **realm**: Name of keycloak realm.
-  - **client_id**: Id of keycloak client.
-  - **client_secret**: Secret of keycloak client.
-  - **zeppelin_url**: Url of zeppelin.
-
-- **fluentbit**: Optional fluent-bit configuration to securely route logs to a fluentd/fluent-bit node using the forward plugin. It has the following keys:
-  - **enabled**: If set to false (the default), fluent-bit will not be installed.
-  - **metrics**: Configuration for metrics fluent-bit exposes.
-    - **enabled**: Whether to enable the metrics or not
-    - **port**: Port to expose the metrics on
-  - **zeppelin_tag**: Tag to assign to logs coming from zeppelin
-  - **node_exporter_tag** Tag to assign to logs coming from the prometheus node exporter
-  - **forward**: Configuration for the forward plugin that will talk to the external fluentd/fluent-bit node. It has the following keys:
-    - **domain**: Ip or domain name of the remote fluentd node.
-    - **port**: Port the remote fluentd node listens on
-    - **hostname**: Unique hostname identifier for the vm
-    - **shared_key**: Secret shared key with the remote fluentd node to authentify the client
-    - **ca_cert**: CA certificate that signed the remote fluentd node's server certificate (used to authentify it)
+- **`k8_service_account_name`**, **`k8_namespace`**, **`k8_api_endpoint`**, **`k8_ca_certificate`**, **`k8_client_certificate`**, **`k8_client_private_key`**, **`s3_access`**, **`s3_secret`**, **`s3_url`**, **`hive_metastore_port`**, **`hive_metastore_url`**, **`spark_sql_warehouse_dir`**, **`notebook_s3_bucket`**, **`keycloak`**, and **`fluentbit`**: Additional configurations for Kubernetes service account, namespace, API endpoint, certificates, S3 credentials, Hive metastore settings, Spark SQL warehouse directory, notebook storage, Keycloak authentication, and Fluent-bit logging.
 
 # Output Variables
 
-- id: ID of the generated zeppelin server compute instance
+- **`id`**: ID of the generated Zeppelin server compute instance.
 
-- ip: IP of the generated zeppelin server compute instance on the network it was attached to
+- **`ip`**: IP of the generated Zeppelin server compute instance on the network it was attached to.
 
-- groups: The security groups giving access to the zeppeling server. The exported security groups (resources of type **openstack_networking_secgroup_v2**) are:
-  - bastion: Servers able to access the zeppelin server with ssh traffic over port 22
-
-# Usage Example
-
-```
-...
-
-module "certificates" {
-  source = "git::https://github.com/Ferlab-Ste-Justine/kubernetes-certificates.git"
-  ca_key = tls_private_key.ca.private_key_pem
-  etcd_ca_key = tls_private_key.etcd_ca.private_key_pem
-  front_proxy_ca_key = tls_private_key.front_proxy_ca.private_key_pem
-  client_key = tls_private_key.client.private_key_pem
-}
-
-...
-
-module "zeppelin" {
-  source = "git::https://github.com/Ferlab-Ste-Justine/openstack-zeppelin.git"
-  name = var.name
-  image_source = {
-    image_id = var.image_id
-    volume_id = ""
-  }
-  flavor_id = var.flavors.small.id
-  network_id = var.network.id
-  kubernetes_workers_security_group_id = module.my_k8_cluster.groups.worker
-  keypair_name = var.bastion_internal_keypair.name
-  nameserver_ips = var.nameserver_ips
-  k8_api_endpoint = "https://mykubernetesapi:6443"
-  k8_ca_certificate = module.certificates.ca_certificate
-  k8_client_certificate = module.certificates.client_certificate
-  k8_client_private_key = tls_private_key.client.private_key_pem
-  s3_access = local.my_zeppelin_bucket.access
-  s3_secret = local.my_zeppelin_bucket.secret
-  s3_url = "mys3server"
-  hive_metastore_port = 9083
-  hive_metastore_url = "myhivemetastore:9083"
-  spark_sql_warehouse_dir = spark/mywharehouse
-  notebook_s3_bucket = notebooks
-}
-```
+- **`groups`**: The security groups giving access to the Zeppelin server. The exported security groups (resources of type `openstack_networking_secgroup_v2`) include:
+  - **`bastion`**: Servers able to access the Zeppelin

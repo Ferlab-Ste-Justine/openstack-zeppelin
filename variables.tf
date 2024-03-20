@@ -22,6 +22,12 @@ variable "kubernetes_workers_security_group_id" {
   type        = string
 }
 
+variable "kubernetes_lb_security_group_id" {
+  description = "Security group ID for Kubernetes load balancers"
+  type        = string
+}
+
+
 variable "additional_security_group_ids" {
   description = "Additional security groups of the node"
   type        = list(string)
@@ -136,7 +142,6 @@ variable "k8_client_private_key" {
   description = "Client private key to access kubernetes api"
   type        = string
 }
-
 
 variable "s3_access" {
   description = "S3 access key"
