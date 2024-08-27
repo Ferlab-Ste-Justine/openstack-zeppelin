@@ -250,7 +250,7 @@ runcmd:
   #Install Zeppelin
   - cd /opt
   - wget ${zeppelin_mirror}/zeppelin/zeppelin-${zeppelin_version}/zeppelin-${zeppelin_version}-bin-netinst.tgz
-  - tar xvzf zeppelin-${zeppelin_version}-bin-netinst.tgz
+  - tar xvzf zeppelin-${zeppelin_version}-bin-netinst.tgz --exclude='._*'
   - mv zeppelin-${zeppelin_version}-bin-netinst zeppelin
   - rm zeppelin-${zeppelin_version}-bin-netinst.tgz
 %{ if keycloak.enabled ~}
