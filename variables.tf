@@ -83,7 +83,7 @@ variable "nameserver_ips" {
 variable "zeppelin_version" {
   description = "Version of zeppelin"
   type        = string
-  default     = "0.11.0"
+  default     = "0.11.1"
 }
 
 variable "zeppelin_mirror" {
