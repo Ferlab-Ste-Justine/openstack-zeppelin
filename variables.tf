@@ -168,6 +168,18 @@ variable "hive_metastore_url" {
   type        = string
 }
 
+variable "spark_version" {
+  description = "Version of spark"
+  type        = string
+  default     = "3.5.2"
+}
+
+variable "spark_mirror" {
+  description = "Mirror from which to download spark"
+  type        = string
+  default     = "https://dlcdn.apache.org"
+}
+
 variable "spark_sql_warehouse_dir" {
   description = "S3 path of the spark sql warehouse"
   type        = string
