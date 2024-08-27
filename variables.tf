@@ -95,7 +95,7 @@ variable "zeppelin_mirror" {
 variable "k8_executor_image" {
   description = "Image to launch k8 executor from"
   type        = string
-  default     = "apache/spark:3.5.1"
+  default     = "apache/spark:3.5.2"
 }
 
 variable "k8_service_account_name" {
