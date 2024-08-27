@@ -36,6 +36,8 @@ locals {
           spark_dynamic_allocation_enabled = var.spark_dynamic_allocation_enabled
           spark_max_executors              = var.spark_max_executors
           spark_min_executors              = var.spark_min_executors
+          spark_version                 = var.zeppelin_version
+          spark_mirror                  = var.zeppelin_mirror
         }
       )
     },

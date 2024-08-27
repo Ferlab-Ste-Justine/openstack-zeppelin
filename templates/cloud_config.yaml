@@ -242,10 +242,10 @@ runcmd:
   - resolvconf -u
   #Install Spark
   - cd /opt
-  - wget https://dlcdn.apache.org/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz
-  - tar xzf spark-3.5.1-bin-hadoop3.tgz
-  - mv spark-3.5.1-bin-hadoop3 spark
-  - rm spark-3.5.1-bin-hadoop3.tgz
+  - wget ${spark_mirror}/spark/spark-${spark_version}/spark-${spark_version}-bin-hadoop3.tgz
+  - tar xzf spark-${spark_version}-bin-hadoop3.tgz
+  - mv spark-${spark_version}-bin-hadoop3 spark
+  - rm spark-${spark_version}-bin-hadoop3.tgz
   - cp /opt/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
   #Install Zeppelin
   - cd /opt
