@@ -177,7 +177,7 @@ variable "spark_version" {
 variable "spark_mirror" {
   description = "Mirror from which to download spark"
   type        = string
-  default     = "https://dlcdn.apache.org"
+  default     = "https://archive.apache.org/dist"
 }
 
 variable "spark_sql_warehouse_dir" {

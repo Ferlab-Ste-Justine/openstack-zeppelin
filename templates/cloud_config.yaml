@@ -242,7 +242,12 @@ runcmd:
   - resolvconf -u
   #Install Spark
   - cd /opt
-  - wget ${spark_mirror}/spark/spark-${spark_version}/spark-${spark_version}-bin-hadoop3.tgz
+  - |
+      wget ${spark_mirror}/spark/spark-${spark_version}/spark-${spark_version}-bin-hadoop3.tgz -O spark-${spark_version}-bin-hadoop3.tgz
+      if [ $? -ne 0 ]; then
+          echo "Failed to download Spark from ${spark_mirror}. Exiting installation."
+          exit 1
+      fi
   - tar xzf spark-${spark_version}-bin-hadoop3.tgz
   - mv spark-${spark_version}-bin-hadoop3 spark
   - rm spark-${spark_version}-bin-hadoop3.tgz
