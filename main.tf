@@ -51,6 +51,11 @@ locals {
       filename     = "fluent_bit.cfg"
       content_type = "text/cloud-config"
       content      = module.fluentbit_configs.configuration
+    }] : [],
+    var.vault_agent.auth_method.config.role_id != "" && var.vault_agent.vault_address != "" ? [{
+      filename     = "vault_agent.cfg"
+      content_type = "text/cloud-config"
+      content      = module.vault_agent_configs.configuration
     }] : []
   )
 }
@@ -78,6 +83,25 @@ module "fluentbit_configs" {
     forward = var.fluentbit.forward
   }
 }
+
+module "vault_agent_configs" {
+  source = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//vault-agent?ref=feat/vault-agent"
+  install_dependencies = var.vault_agent.install_dependencies
+  vault_agent = {
+    auth_method          = {
+      config = {
+        role_id   = var.vault_agent.auth_method.config.role_id
+        secret_id = var.vault_agent.auth_method.config.secret_id
+      }
+    }
+    vault_address        = var.vault_agent.vault_address
+    vault_ca_cert        = var.vault_agent.vault_ca_cert
+    templates            = var.vault_agent.templates
+    extra_config         = var.vault_agent.extra_config
+    release_version      = var.vault_agent.release_version
+  }
+}
+
 
 data "template_cloudinit_config" "zeppelin" {
   gzip          = true

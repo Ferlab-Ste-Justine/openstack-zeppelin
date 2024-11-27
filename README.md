@@ -3,7 +3,7 @@
 This Terraform module provisions a Zeppelin VM in OpenStack. The Zeppelin server provisioned has the following characteristics:
 - Provisions executors in a Kubernetes cluster.
 - Uses S3 for storage.
-- Utilizes an Hive metastore.
+- Utilizes a Hive metastore.
 - Operates with Spark 3 in Scala.
 - Saves its notebooks in S3.
 - Expects to communicate with a group of Kubernetes workers to access the Hive metastore, with client traffic originating from the Kubernetes cluster's workers.
@@ -49,6 +49,25 @@ We experimented with orchestrating Zeppelin directly in Kubernetes using its bui
 
 - **`k8_service_account_name`**, **`k8_namespace`**, **`k8_api_endpoint`**, **`k8_ca_certificate`**, **`k8_client_certificate`**, **`k8_client_private_key`**, **`s3_access`**, **`s3_secret`**, **`s3_url`**, **`hive_metastore_port`**, **`hive_metastore_url`**, **`spark_sql_warehouse_dir`**, **`notebook_s3_bucket`**, **`keycloak`**, and **`fluentbit`**: Additional configurations for Kubernetes service account, namespace, API endpoint, certificates, S3 credentials, Hive metastore settings, Spark SQL warehouse directory, notebook storage, Keycloak authentication, and Fluent-bit logging.
 
+- **`vault_agent`**: Configuration for Vault Agent. This object includes:
+  - **`enabled`**: Boolean to enable or disable Vault Agent configuration.
+  - **`install_dependencies`**: Boolean to determine if dependencies like `unzip` should be installed.
+  - **`auth_method`**: Authentication method configuration for Vault Agent. Contains:
+    - **`type`**: Type of authentication (e.g., `approle`).
+    - **`config`**: Configuration object with:
+      - **`role_id`**: Content of the Role ID file.
+      - **`secret_id`**: Content of the Secret ID file.
+  - **`vault_address`**: Address of the Vault server.
+  - **`vault_ca_cert`**: Content of the CA certificate file.
+  - **`templates`**: List of objects defining templates for secrets:
+    - **`source_path`**: Path to the template file.
+    - **`destination_path`**: Destination path for the rendered secrets.
+    - **`service_name`**: Name of the service to restart after rendering.
+    - **`secret_path`**: Vault secret path.
+    - **`secret_key`**: Key in the secret to retrieve.
+  - **`agent_config`**: Additional agent configuration as a string.
+  - **`release_version`**: Version of Vault to install.
+
 # Output Variables
 
 - **`id`**: ID of the generated Zeppelin server compute instance.
@@ -56,4 +75,4 @@ We experimented with orchestrating Zeppelin directly in Kubernetes using its bui
 - **`ip`**: IP of the generated Zeppelin server compute instance on the network it was attached to.
 
 - **`groups`**: The security groups giving access to the Zeppelin server. The exported security groups (resources of type `openstack_networking_secgroup_v2`) include:
-  - **`bastion`**: Servers able to access the Zeppelin
+  - **`bastion`**: Servers able to access the Zeppelin.

@@ -263,3 +263,41 @@ variable "fluentbit" {
     }
   }
 }
+
+variable "vault_agent" {
+  description = "Configuration for Vault Agent"
+  type = object({
+    install_dependencies = bool
+    auth_method         = object({
+      config = object({
+        role_id   = string # Content of the role ID file
+        secret_id = string # Content of the secret ID file
+      })
+    })
+    vault_address       = string
+    vault_ca_cert       = string # Content of the CA certificate file
+    templates           = list(object({
+      source_path      = string
+      destination_path = string
+      command     = string
+      secret_path      = string
+      secret_key       = string
+    }))
+    extra_config        = string
+    release_version     = string
+  })
+  default = {
+    install_dependencies = true
+    auth_method         = {
+      config = {
+        role_id   = ""
+        secret_id = ""
+      }
+    }
+    vault_address       = ""
+    vault_ca_cert       = ""
+    templates           = []
+    extra_config        = ""
+    release_version     = ""
+  }
+}
