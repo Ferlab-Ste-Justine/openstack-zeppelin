@@ -56,12 +56,12 @@ locals {
 }
 
 module "prometheus_node_exporter_configs" {
-  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//prometheus-node-exporter?ref=v0.14.2"
+  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//prometheus-node-exporter?ref=v0.50.3"
   install_dependencies = true
 }
 
 module "fluentbit_configs" {
-  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//fluent-bit?ref=v0.14.2"
+  source               = "git::https://github.com/Ferlab-Ste-Justine/terraform-cloudinit-templates.git//fluent-bit?ref=v0.50.3"
   install_dependencies = true
   fluentbit = {
     metrics = var.fluentbit.metrics
@@ -75,7 +75,8 @@ module "fluentbit_configs" {
         service = "node-exporter.service"
       }
     ]
-    forward = var.fluentbit.forward
+    log_files = []
+    forward   = var.fluentbit.forward
   }
 }
 
